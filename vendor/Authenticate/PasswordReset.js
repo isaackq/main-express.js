@@ -103,6 +103,8 @@ module.exports = class PasswordReset {
         // console.log("URL : " , URL);
       }
     } else {
+      console.log("isaac kamel");
+      
       throw new Error("Password reset route must be defined: /password/:token");
     }
   }
