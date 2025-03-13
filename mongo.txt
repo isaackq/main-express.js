@@ -1,0 +1,52 @@
+create database : use school 
+
+ceeate collcections : db.createCollection("Student")  after this it appers in the show dbs
+
+
+drop collections: db.dropDatabase()
+
+
+insert data into colloection : db.Student.insertOne({name: "isaac", age:"21", gpa:3.2})
+
+show the data : db.Student.find()
+
+insert many into collection :db.Student.insertMany([{name:"kamel", age: 55, gpa:100},{name:"eman", age:"42", gpa:100},{name:"mera",age:8,gpa:4}])
+
+
+code with dif datatypes :db.Student.insertOne({name :"isaackamel", age :"19", gpa :100.4, data: new Date(), nullvalue:null, courses:["IT",3,50,false],address:{}})
+
+
+sort the feild in alphapatic order: db.Student.find().sort({name:1}) , 
+
+sort the feild in reverce alphapatic order: db.Student.find().sort({name:-1}) 
+
+
+sort the feild in Ascending order : db.Student.find().sort({gpa:1})  تصاعدي 
+
+sort the feild in Descending order :db.Student.find().sort({gpa:-1}) تنازلي 
+
+find the first objerct : db.Student.find().limit(1)
+
+find the student with  the higest gpa : db.Student.find().sort({gpa:-1}).limit(1)
+
+find spesific Student : db.Student.find({name: "isaac"})
+
+
+retreve the name only in all the objects : db.Student.find({},{name: true})//{query} , {projection prameter} 
+
+another way to retreve the name only in all the objects : db.Student.find({},{name: 1})
+
+show the name but do not show the id : db.Student.find({},{_id: false ,name: true}) ,,,,db.Student.find({},{_id :false , name : true , gpa : true })
+
+update one feild  :db.Student.updateOne({name: "isaac"},{$set :{name:"isaac kamel eqdiah "}})  (filter , update)
+
+if full time does not exist it will be added :db.Student.updateOne({_id: ObjectId('67b4464e0c9045e7e081d406')},{$set: {fullTime : false}})
+
+remove gpa feild where the id as the filter :db.Student.updateOne({_id: ObjectId('67b4464e0c9045e7e081d406')},{$unset: {gpa : false}})
+or 
+remove gpa feild where the id as the filter :db.Student.updateOne({_id: ObjectId('67b4464e0c9045e7e081d406')},{$unset: {gpa : ""}})
+
+update the feild for all , and add it if does nor exist : db.Student.updateMany({},{$set:{fullTime : true }})
+
+
+
