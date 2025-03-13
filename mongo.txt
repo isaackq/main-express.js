@@ -49,4 +49,5 @@ remove gpa feild where the id as the filter :db.Student.updateOne({_id: ObjectId
 update the feild for all , and add it if does nor exist : db.Student.updateMany({},{$set:{fullTime : true }})
 
 
+do anything to try 
 
