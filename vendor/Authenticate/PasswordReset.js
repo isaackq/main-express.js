@@ -41,19 +41,24 @@ module.exports = class PasswordReset {
 
   forEmail(email) {
     this.#email = email;
+    return this; // to do a chain
   }
 
   guard(guard) {
     this.#guard = guard;
+    return this;
   }
 
   // requestPasswordReset(email, guard = auth.defaults.guard) {
   //   const result = this.#store(email, guard);
   // }
 
-  requestPasswordReset() {
-    //شلناهم بعد معرفنا المتغيرات فوق
-    const result = this.#store();
+  requestReset() {
+    if (this.#email != null) {
+      const result = this.#store();
+    } else {
+      throw new Error("set reset passord email, call forEmail(email)");
+    }
   }
 
   //Function #1
@@ -103,8 +108,6 @@ module.exports = class PasswordReset {
         // console.log("URL : " , URL);
       }
     } else {
-      console.log("isaac kamel");
-      
       throw new Error("Password reset route must be defined: /password/:token");
     }
   }

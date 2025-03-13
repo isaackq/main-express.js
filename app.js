@@ -210,7 +210,7 @@ app.use((error, req, res, next) => {
 //     console.log("Connection Authentication Error" + error);
 //   }); //لو طلع الايرور هادا بكون خلل في الاتصال
 
-// PasswordReset.instance.requestPasswordReset("isaac@email.com");
+PasswordReset.instance.forEmail("isaac@email.com").requestReset();
 
 app.listen(5000, (req, res, next) => {
   console.log("Server started :: 5000 ");
