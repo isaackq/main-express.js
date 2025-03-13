@@ -1,0 +1,6 @@
+{
+    "window.zoomLevel": 0,
+    "window.zoomPerWindow": true,
+    "editor.mouseWheelZoom": true,
+    "terminal.integrated.mouseWheelZoom": true
+}

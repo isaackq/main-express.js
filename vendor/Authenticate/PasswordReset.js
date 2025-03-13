@@ -1,0 +1,117 @@
+const crypto = require("crypto");
+const { auth } = require("../../config/auth");
+const Route = require("../../services/Route");
+const { where } = require("sequelize");
+module.exports = class PasswordReset {
+  /**
+   * Steps :
+   * 1- Genarate reset token (hashed),
+   * 2- Store generated hased token in DB
+   * 3- Store Expiration date for the password reset link
+   * 4- Send email with generated link to the user email
+   * 5- prepare a function to check the link when user by the user
+   *    - Check the token validation
+   *    - Check expiry date
+   * 6- if(5) Passed :
+   *    - Allow user to set a new password
+   *    - Save user new password
+   *    - Remove reset token row frome DB
+   */
+
+  //Function  e
+  // requestPasswordReset(email, guard = auth.defaults.guard) {
+  //  //Moved to stor
+  //   // const { model, expired_after } = auth.password_reset[guard]; //guard //عشان الشغل يضل ثابت هان
+  //   // const token = this.#generateToken();
+  //   // const date = this.#expirationDate(expired_after);
+  //   // const URL = this.#generateUrl(token, email);
+  // }
+
+  //Singleton
+
+  static #instance = null;
+
+  #email = null;
+  #guard = auth.defaults.guard;
+
+  static get instance() {
+    //??= means  if not null return , if null create and return
+    return (this.#instance ??= new PasswordReset());
+  }
+
+  forEmail(email) {
+    this.#email = email;
+  }
+
+  guard(guard) {
+    this.#guard = guard;
+  }
+
+  // requestPasswordReset(email, guard = auth.defaults.guard) {
+  //   const result = this.#store(email, guard);
+  // }
+
+  requestPasswordReset() {
+    //شلناهم بعد معرفنا المتغيرات فوق
+    const result = this.#store();
+  }
+
+  //Function #1
+  #generateToken() {
+    const token = crypto.randomBytes(32).toString("hex"); //نحول ال 32 بايت ل هكاسا ديسيميل
+    console.log(token);
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex"); //الاقوريثيمز تبعت التشفير  // برجع قيمة التشفير بالهكسا ديسيميل
+    console.log(hashedToken);
+    return token;
+  }
+
+  #expirationDate(expired_after) {
+    //لازم نخزن الوقت على اليونيفيرسال تايم ولو في اي تحويلات حسب المنطقة بكون الها معاملة خاصة بالبرمجة
+    const minutes = 1000 * 60 * expired_after; //يعني 5 دقاقئق من الان //لازم نثبت الوقت على وقت السيرفر مش الوقت تبعنا
+    return Date.now() + minutes;
+  }
+
+  //بيحتاج الايميل تبع المستخدم وبدها تحتاج كذلك نحط في الايميل التوكن المشفرة
+  #generateUrl(token, email) {
+    //http://DOMAIN.com/TOKEN?email=EMAIL // صيغة الرابط
+    const hashedEmail = crypto.createHash("sha256").update(email).digest("hex"); //تشفير الايميل
+    return process.env.APP_URL.concat(
+      "/password/",
+      token,
+      "?email=",
+      hashedEmail
+    );
+  }
+
+  async #store() {
+    //Store the data in database
+    if (Route.isRouteExists("/password/:token")) {
+      const { model, expired_after } = auth.password_reset[this.#guard]; //guard //عشان الشغل يضل ثابت هان
+      const token = this.#generateToken();
+      const date = this.#expirationDate(expired_after);
+      const url = this.#generateUrl(token, this.#email);
+      console.log("MODEL:", model);
+      await model.destroy({ where: { email: this.#email } }); //حذف الطلب السابق ازا نعمل طلب جديد
+
+      const result = await model.create({
+        token: token,
+        email: this.#email,
+        expires_at: date,
+      });
+      if (result) {
+        this.#sendEmail(url);
+        // console.log("URL : " , URL);
+      }
+    } else {
+      throw new Error("Password reset route must be defined: /password/:token");
+    }
+  }
+
+  #sendEmail(url) {
+    console.log("URL : ", url); //URL :  http://localhost:5000/854b977fa9013f2edcb7a75383249a5f408403bc1226a627ff2c74d9f99cbf6d?email=9db096ff2660cf63c038fade7ce25a90e0b83b33de2496aff15d6d0cbff6663b
+  }
+};
+//وظيفتها الاساسية توليد ال يو ار ال  تعبنا //generateUrl()
+//http://www.something.com/TOKEN?email=email@app.com //بنستخدم الايمبل في جلب المستخدم من الداتا بيز اما التوكن بكون مشفر
+//http://www.something.com/TOKEN?email=HASH_EMAIL  // في ناس بتشفر الايمل وفي لا
+//لما ينضغط اليو ار ال بروح يتاكد ازا في توكن في السيستم ولدت التوكن هادي وبعدين بتاكد انو التوكن الي موجودة في الداتا بيز مش اكسبيرد وبعدين بجيب الايميل الي مخزن في الداتا بيز وبيتاكد انو نفس الهاشد الايميل الموجود في الرابط

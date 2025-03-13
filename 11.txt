@@ -1,0 +1,14 @@
+user.assignRole(1);
+user.revokeRole(1);
+user.hasRole("RoleName");
+user.hasRoles(...);
+user.getRoles();
+
+user.getPermissionsViaRoles();
+user.getAllPermissions();
+
+user.hasPermissionTo("PermissionName");
+user.givePermissionTo("PN");
+user.removePermissionTo("pn");
+user.permissions();
+user.haspermissions();
