@@ -11,11 +11,13 @@ const { where } = require("sequelize");
 const { guest } = require("../middlewares/guest");
 const { auth } = require("../config/auth");
 const { authorize } = require("../vendor/Auth/middlewares/authorize");
+const PasswordReset = require("../vendor/Authenticate/PasswordReset");
 // const { authorize } = require("../middlewares/authorize/authorize");//تنقل مكانها على ملف الفيندور
 // const { Json } = require("sequelize/types/utils");//ايررور لما افعلها
 
 router.get("/password/:token", (req, res) => {
   console.log(`Token : ${req.params.token} :: Email:${req.query.email}`);//query //المتغير الي بعد علامة الاستفهام في الرابط 
+  PasswordReset.instance.reset(req);
 });
 
 router.get("/test", (req, res, next) => {
