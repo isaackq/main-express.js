@@ -83,20 +83,25 @@ module.exports = class PasswordReset {
     const resetRequest = await PasswordRestToke.findOne({
       where: { token: token },
     });
-    if (Date.now() <= resetRequest.expires_at) {
-      //enure that the url time does not end
-      const requestHashedEmail = crypto //تشفير الايميل الموجود في قاعدة البيانات لمقارنته مع الايميل المشفر الموجود في الرابط
-        .createHash("sha256")
-        .update(resetRequest.email)
-        .digest("hex"); //تشفير الايميل
 
-      if (requestHashedEmail === hashedEmail) {
-        console.log("Perform Password Reset, request is secured and passed");
+    if (resetRequest != null) {//in evry save we do new URL GENERATED
+      if (Date.now() <= resetRequest.expires_at) {
+        //enure that the url time does not end
+        const requestHashedEmail = crypto //تشفير الايميل الموجود في قاعدة البيانات لمقارنته مع الايميل المشفر الموجود في الرابط
+          .createHash("sha256")
+          .update(resetRequest.email)
+          .digest("hex"); //تشفير الايميل
+
+        if (requestHashedEmail === hashedEmail) {
+          console.log("Perform Password Reset, request is secured and passed");
+        } else {
+          console.log("Rejected URL, unsecured email hash");
+        }
       } else {
-        console.log("Rejected URL, unsecured email hash");
+        console.log("Expired request time, Forbidden");
       }
     } else {
-      console.log("Expired request time, Forbidden");
+      console.log("Invalid Reset Token, Rejected");
     }
   }
 
