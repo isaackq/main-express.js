@@ -12,12 +12,30 @@ const { guest } = require("../middlewares/guest");
 const { auth } = require("../config/auth");
 const { authorize } = require("../vendor/Auth/middlewares/authorize");
 const PasswordReset = require("../vendor/Authenticate/PasswordReset");
+const {
+  signedResetToken,
+} = require("../vendor/Authenticate/middlewares/signedResetToken");
 // const { authorize } = require("../middlewares/authorize/authorize");//تنقل مكانها على ملف الفيندور
 // const { Json } = require("sequelize/types/utils");//ايررور لما افعلها
 
-router.get("/password/:token", (req, res) => {
-  console.log(`Token : ${req.params.token} :: Email:${req.query.email}`);//query //المتغير الي بعد علامة الاستفهام في الرابط 
-  PasswordReset.instance.reset(req);
+router.get("/password/:token", signedResetToken, (req, res) => {
+  console.log(`Token : ${req.params.token} :: Email:${req.query.email}`); //query //المتغير الي بعد علامة الاستفهام في الرابط
+  // PasswordReset.instance.broker("user").resetPassword(req); //لو بدون بروكر كان اشتغل على الديفولت //student
+  console.log("redirect to reset screen and reset password");
+});
+
+router.post("/password/reset", (req, res) => {
+  PasswordReset.instance
+    .broker("user")
+    .resetPassword(
+      "email",
+      "password",
+      "password_confirmation",
+      (user, password) => {
+        user.password = password;
+        user.save();
+      }
+    );
 });
 
 router.get("/test", (req, res, next) => {

@@ -34,6 +34,7 @@ module.exports = class PasswordReset {
 
   #email = null;
   #guard = auth.defaults.guard;
+  #passwordReset = auth.defaults.passwordReset;
 
   static get instance() {
     //??= means  if not null return , if null create and return
@@ -50,6 +51,12 @@ module.exports = class PasswordReset {
     return this;
   }
 
+  broker(passwordReset) {
+    //fot chcange the guard when apply the reset Process
+    this.#passwordReset = passwordReset;
+    return this;
+  }
+
   // requestPasswordReset(email, guard = auth.defaults.guard) {
   //   const result = this.#store(email, guard);
   // }
@@ -62,50 +69,51 @@ module.exports = class PasswordReset {
     }
   }
 
-  async reset(req) {
-    /**
-     * 1- Retreve the req
-     * 2- Get params and query params from the req
-     * 3- Check the data of expires_at value if not expired?
-     *    - Get the token
-     *    - make a query on password_reset_tokens table using token
-     *    - validate the expiration date
-     *    - if not expired , continue //الوقت الي بكون في الجدول وقت مستقبلي بنقارنو ازا اقل او يساوي الحالي
-     * 4- Check email hash(Digital Signature)
-     *    - Email : req.query.email (Hashed)
-     *       - DB :email(Not Hashed)
-     *       - Hash DB email and compare HASH with HASH
-     * 5- if pass on comparing, then allow password reset
-     * 6- Remove the row after password has been reset successfully
-     */
-    const token = req.params.token;
-    const hashedEmail = req.query.email;
-    const resetRequest = await PasswordRestToke.findOne({
-      where: { token: token },
-    });
+  // async reset(req) {//move the function into middleware
+  //   /**
+  //    * 1- Retreve the req
+  //    * 2- Get params and query params from the req
+  //    * 3- Check the data of expires_at value if not expired?
+  //    *    - Get the token
+  //    *    - make a query on password_reset_tokens table using token
+  //    *    - validate the expiration date
+  //    *    - if not expired , continue //الوقت الي بكون في الجدول وقت مستقبلي بنقارنو ازا اقل او يساوي الحالي
+  //    * 4- Check email hash(Digital Signature)
+  //    *    - Email : req.query.email (Hashed)
+  //    *       - DB :email(Not Hashed)
+  //    *       - Hash DB email and compare HASH with HASH
+  //    * 5- if pass on comparing, then allow password reset
+  //    * 6- Remove the row after password has been reset successfully
+  //    */
+  //   const token = req.params.token;
+  //   const hashedEmail = req.query.email;
+  //   const resetRequest = await PasswordRestToke.findOne({
+  //     where: { token: token },
+  //   });
 
-    if (resetRequest != null) {//in evry save we do new URL GENERATED
-      if (Date.now() <= resetRequest.expires_at) {
-        //enure that the url time does not end
-        const requestHashedEmail = crypto //تشفير الايميل الموجود في قاعدة البيانات لمقارنته مع الايميل المشفر الموجود في الرابط
-          .createHash("sha256")
-          .update(resetRequest.email)
-          .digest("hex"); //تشفير الايميل
+  //   if (resetRequest != null) {//in evry save we do new URL GENERATED
+  //     if (Date.now() <= resetRequest.expires_at) {
+  //       //enure that the url time does not end
+  //       const requestHashedEmail = crypto //تشفير الايميل الموجود في قاعدة البيانات لمقارنته مع الايميل المشفر الموجود في الرابط
+  //         .createHash("sha256")
+  //         .update(resetRequest.email)
+  //         .digest("hex"); //تشفير الايميل
 
-        if (requestHashedEmail === hashedEmail) {
-          console.log("Perform Password Reset, request is secured and passed");
-        } else {
-          console.log("Rejected URL, unsecured email hash");
-        }
-      } else {
-        console.log("Expired request time, Forbidden");
-      }
-    } else {
-      console.log("Invalid Reset Token, Rejected");
-    }
-  }
+  //       if (requestHashedEmail === hashedEmail) {
+  //         console.log("Perform Password Reset, request is secured and passed");
+  //       } else {
+  //         console.log("Rejected URL, unsecured email hash");
+  //       }
+  //     } else {
+  //       console.log("Expired request time, Forbidden");
+  //     }
+  //   } else {
+  //     console.log("Invalid Reset Token, Rejected");
+  //   }
+  // }
 
   //Function #1
+
   #generateToken() {
     const token = crypto.randomBytes(32).toString("hex"); //نحول ال 32 بايت ل هكاسا ديسيميل
     console.log(token);
@@ -153,6 +161,29 @@ module.exports = class PasswordReset {
       }
     } else {
       throw new Error("Password reset route must be defined: /password/:token");
+    }
+  }
+
+  async resetPassword(email, passeord, passwordConfirmation, callback) {
+    const passwordResetConfig = auth.password_reset[this.#passwordReset];
+    const { provider } = auth.guards[this.#passwordReset];
+    const model = auth.providers[provider];
+
+    const resetRequest = await PasswordRestToke.findOne({
+      where: { email: email },
+    });
+
+    if (Date.now() <= resetRequest.expires_at) {
+      const user = await model.findOne({ where: { email: email } });
+      if (passeord === passwordConfirmation) {
+        await resetRequest.destroy();
+        callback(user,password);
+        // return user;
+      } else {
+        throw new Error("Password confirmation Error");
+      }
+    } else {
+      throw new Error("Token Expired"); //Important Step
     }
   }
 

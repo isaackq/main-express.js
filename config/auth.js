@@ -16,8 +16,7 @@
 const Student = require("../models/students");
 const PasswordRestToke = require("../vendor/Authenticate/models/PasswodeResetToken");
 // const PasswordReset = require("../vendor/Authenticate/PasswordReset");//(node:1600) Warning: Accessing non-existent property 'auth' of module exports inside circular dependency
-// (Use `node --trace-warnings ...` to show where the warning was created) // هادا الايرور طلع عشان ملفين بكونو بستدعو بعض ف بصير انفينت لووب 
-
+// (Use `node --trace-warnings ...` to show where the warning was created) // هادا الايرور طلع عشان ملفين بكونو بستدعو بعض ف بصير انفينت لووب
 
 //بدنا نعمل طبقة كاملة من مفهوم الكونفيق فايلز
 //ملفات خدماتية معرف فيها جملة من الاسس  والمفاهيم والقوانين
@@ -26,6 +25,7 @@ const PasswordRestToke = require("../vendor/Authenticate/models/PasswodeResetTok
 exports.auth = {
   defaults: {
     guard: "student",
+    passwordReset: "student",
   },
   guards: {
     //بدنا نعرف انواع المستحدمين الي عنا في النظام
@@ -51,7 +51,14 @@ exports.auth = {
     // }
   },
   password_reset: {
-    student: {//student the same name as the guard 
+    student: {
+      //student the same name as the guard
+      model: PasswordRestToke,
+      expired_after: 5, //5 دقايق عشان نعمل الي في المودل متغير ونعدل من هان
+    },
+    user: {
+      //لازم نعمل  بروكر عشان موضوع القارد  //بروكر للديفولت
+      //student the same name as the guard
       model: PasswordRestToke,
       expired_after: 5, //5 دقايق عشان نعمل الي في المودل متغير ونعدل من هان
     },

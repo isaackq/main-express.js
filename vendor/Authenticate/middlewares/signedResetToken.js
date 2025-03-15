@@ -14,6 +14,9 @@
  * 6- Remove the row after password has been reset successfully
  */
 
+const PasswordRestToke = require("../models/PasswodeResetToken");
+const crypto = require("crypto");
+
 exports.signedResetToken = async (req, res, next) => {
   const token = req.params.token;
   const hashedEmail = req.query.email;
@@ -26,20 +29,19 @@ exports.signedResetToken = async (req, res, next) => {
     //in evry save we do new URL GENERATED
     if (Date.now() <= resetRequest.expires_at) {
       //enure that the url time does not end
-      const requestHashedEmail = crypto //تشفير الايميل الموجود في قاعدة البيانات لمقارنته مع الايميل المشفر الموجود في الرابط
-        .createHash("sha256")
+      const requestHashedEmail = crypto.createHash("sha256") //تشفير الايميل الموجود في قاعدة البيانات لمقارنته مع الايميل المشفر الموجود في الرابط
         .update(resetRequest.email)
         .digest("hex"); //تشفير الايميل
-
       if (requestHashedEmail === hashedEmail) {
-        console.log("Perform Password Reset, request is secured and passed");
+        return next();
       } else {
-        console.log("Rejected URL, unsecured email hash");
+        throw new Error("Rejected URL , unsecured email hash"); //مؤقتا
+        // return res.render("/.");
       }
     } else {
-      console.log("Expired request time, Forbidden");
+      throw new Error("Expired request time, Forbidden");
     }
   } else {
-    console.log("Invalid Reset Token, Rejected");
+    throw new Error("Invalid Reset Token, Rejected");
   }
 };
