@@ -18,15 +18,45 @@ const {
 // const { authorize } = require("../middlewares/authorize/authorize");//تنقل مكانها على ملف الفيندور
 // const { Json } = require("sequelize/types/utils");//ايررور لما افعلها
 
+router.get("password/reset", (req, res) => {
+  //1
+  //show the reset view to enter email and perform '/password/reset' POST request
+  // The user visits this route to enter their email.
+  // The frontend will show a form where the user provides their email address.
+});
+
+router.post("password/reset", (req, res) => {
+  //do the request here to genereate the reset URL//2
+  //  The user submits their email via a form.
+  // The system calls PasswordReset.instance.forEmail("isaac@email.com").requestReset();, which generates a reset link.
+  // This reset link usually contains a token and an email query (e.g., /password/token?email=isaac@email.com).
+  PasswordReset.instance.forEmail("isaac@email.com").requestReset(); //moved to the wep
+});
+
 router.get("/password/:token", signedResetToken, (req, res) => {
+  //3 //التحقق من الرابط ثم // redirect to reset screen and reset password
+  // The user clicks on the reset link received via email.
+  // The server extracts:
+  // req.params.token: The token from the URL.
+  // req.query.email: The email passed as a query parameter.
+  // Logs the token and email to the console for debugging.
+  // The system should verify if the token is valid.
+  // (Missing in Code): If valid, redirect the user to a frontend reset form.
   console.log(`Token : ${req.params.token} :: Email:${req.query.email}`); //query //المتغير الي بعد علامة الاستفهام في الرابط
-  // PasswordReset.instance.broker("user").resetPassword(req); //لو بدون بروكر كان اشتغل على الديفولت //student
   console.log("redirect to reset screen and reset password");
+  // res.redirect('')
 });
 
 router.post("/password/reset", (req, res) => {
+  //4
+  //perform reset operations
+  // The user submits a new password and confirmation password.
+  // Verifies the provided email.
+  // Ensures the passwords match.
+  // Updates the user’s password in the database.
+  // Saves the changes.
   PasswordReset.instance
-    .broker("user")
+    .broker("user") //لو بدون بروكر كان اشتغل على الديفولت //student
     .resetPassword(
       "email",
       "password",

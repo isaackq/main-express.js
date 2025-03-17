@@ -3,6 +3,7 @@ const { auth } = require("../../config/auth");
 const Route = require("../../services/Route");
 const { where } = require("sequelize");
 const PasswordRestToke = require("./models/PasswodeResetToken");
+const Mailer = require("../Mailer/Mailer");
 module.exports = class PasswordReset {
   /**
    * Steps :
@@ -177,7 +178,7 @@ module.exports = class PasswordReset {
       const user = await model.findOne({ where: { email: email } });
       if (passeord === passwordConfirmation) {
         await resetRequest.destroy();
-        callback(user,password);
+        callback(user, password);
         // return user;
       } else {
         throw new Error("Password confirmation Error");
@@ -188,7 +189,18 @@ module.exports = class PasswordReset {
   }
 
   #sendEmail(url) {
-    console.log("URL : ", url); //URL :  http://localhost:5000/854b977fa9013f2edcb7a75383249a5f408403bc1226a627ff2c74d9f99cbf6d?email=9db096ff2660cf63c038fade7ce25a90e0b83b33de2496aff15d6d0cbff6663b
+    console.log("URL : ", url); //URL :  http://localhost:5000/854b977fa9013f2edcb7a75383249a5f408403bc1226a627ff2c74d9f99cbf6d?email=9db096ff2660cf63c038fade7ce25a90e0b83b33de2496aff15d6d0cbff6663bMA
+    Mailer.instance
+      .to("isaackamel12345@gmail.com")
+      .from("isaackamel123456789@gmail.com")
+      .subject("Reset Password Request")
+      .text(
+        `Password Reset Request`
+      )
+      .message(
+        `a reset URL has been sent as a result of your request, if u dont request a password reset ignore this email. \n to reset your password click on ${url}`
+      )
+      .send();
   }
 };
 //وظيفتها الاساسية توليد ال يو ار ال  تعبنا //generateUrl()
