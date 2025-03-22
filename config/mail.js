@@ -5,7 +5,7 @@ exports.mail = {
   nodemailer: {
     host: process.env.MAIL_HOST,
     port: process.env.MAIL_PORT,
-    secure:false,
+    secure: JSON.parse(process.env.MAIL_SECURE), //to handle  the boolean object  that come from the env file
     auth: {
       user: process.env.MAIL_USER,
       pass: process.env.MAIL_PASS,
