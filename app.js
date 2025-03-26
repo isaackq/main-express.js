@@ -33,10 +33,10 @@ const Route = require("./services/Route");
 const Authorize = require("./vendor/Auth/Authorize");
 const PasswordReset = require("./vendor/Authenticate/PasswordReset");
 const { auth } = require("./config/auth");
-const {
-  createToken,
-  verifyToken,
-} = require("./vendor/Authenticate/api/ApiAuth");
+// const {
+//   createToken,
+//   verifyToken,
+// } = require("./vendor/Authenticate/api/ApiAuth");
 
 //Instances
 const app = express();
