@@ -12,3 +12,16 @@ exports.mail = {
     },
   },
 };
+
+
+//change the settigns to sent from and to gmail 
+// exports.mail = {
+//   default: "nodemailer",
+//   nodemailer: {
+//     service: 'gmail', 
+//     auth: {
+//       user: 'isaackamel12345@gmail.com',
+//       pass: 'kecj exhq vtzq xtsi',
+//     },
+//   },
+// };

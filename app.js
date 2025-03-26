@@ -17,6 +17,8 @@ const {
 } = require("./middlewares/preventDuringmaintaunance");
 const AppProvider = require("./services/AppProvider");
 const Route = require("./services/Route");
+// const nodemailer = require("nodemailer");
+
 // const Role = require("./models/authorize/Role");
 // const Premission = require("./models/authorize/Permission");
 // const RolePermission = require("./models/authorize/RolePermission");
@@ -31,6 +33,11 @@ const Route = require("./services/Route");
 const Authorize = require("./vendor/Auth/Authorize");
 const PasswordReset = require("./vendor/Authenticate/PasswordReset");
 const { auth } = require("./config/auth");
+const {
+  createToken,
+  verifyToken,
+} = require("./vendor/Authenticate/api/ApiAuth");
+
 //Instances
 const app = express();
 // AppProvider.app = app; //قيمة جديدة واعطيناها الاب
@@ -61,6 +68,35 @@ app.use(methodOverride);
 app.use(withSessionHandler);
 app.use(sessionErorrs); //قبل الراوتس
 // app.use(sessionStorage);
+
+//SEND EMAIL TEST FROM CHATGPT
+// app.post('/send-email', async (req, res) => {
+//   const { to, subject, text } = req.body;
+
+//   // Gmail SMTP setup
+//   const transporter = nodemailer.createTransport({
+//     service: 'gmail',
+//     auth: {
+//       user: 'isaackamel12345@gmail.com',        // 🔁 Your Gmail address
+//       pass: 'kecj exhq vtzq xtsi'       // 🔁 Use App Password if 2FA is enabled
+//     }
+//   });
+
+//   const mailOptions = {
+//     from: 'isaackamel12345@gmail.com',
+//     to:  to,                      // Receiver's email
+//     subject: subject,
+//     text: text
+//   };
+
+//   try {
+//     await transporter.sendMail(mailOptions);
+//     res.status(200).send('Email sent successfully');
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).send('Failed to send email');
+//   }
+// });
 
 // Authorize.getInstance().defineAuthorization(Student);////////////////
 // Student.findByPk(2).then(async (result) => {//works only when we return the pvr because this model have permaissions via role
@@ -210,7 +246,15 @@ app.use((error, req, res, next) => {
 //     console.log("Connection Authentication Error" + error);
 //   }); //لو طلع الايرور هادا بكون خلل في الاتصال
 
-PasswordReset.instance.forEmail("isaac@email.com").requestReset(); //moved to the wep
+// PasswordReset.instance.forEmail("isaac@email.com").requestReset(); //moved to the wep
+// createToken();
+// verifyToken('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzQyODEzNjI4fQ.p2LIx-JaaK0R_umAQUXXFVZ09buG8jtQ21nY78g1roI');
+
+Student.findByPk(1)
+  .then((result) => {
+    // result.createToken(`user-${result.id}`, true );//ازا بدنا يلغي التوكنز الي قبل بنحطها ترو اما ازا يضلو شغالات بنحطها فولس 
+  })
+  .catch(function (error) {});
 
 app.listen(5000, (req, res, next) => {
   console.log("Server started :: 5000 ");

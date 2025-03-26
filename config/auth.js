@@ -33,12 +33,16 @@ exports.auth = {
       driver: "session", //sessions or token , token for api , session for wep and spa  //للكوكيز في الاس يس اي
       provider: "students", //لازم نعرفو تحت
     },
+    student_api: {
+      driver: "token", //sessions or token , token for api , session for wep and spa  //للكوكيز في الاس يس اي
+      provider: "students", //the same provider 
+    },
     // admin :{
     //     driver:"session" ,
     //     provide :"admins"
     // }
   },
-  providers: {
+  providers: {//provider is the name of the table wiht s 
     //data sourse
     students: {
       modelname: "Student",

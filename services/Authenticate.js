@@ -58,8 +58,8 @@ module.exports = class Auth {
       const { model } = auth.providers[p];
       // console.log('+++++++++++++++',model);
       if (model === targetModel) {
-        for(const guard in auth.guards){
-          const {provider} = auth.guards[guard];
+        for (const guard in auth.guards) {
+          const { provider } = auth.guards[guard];
           if (provider === p) {
             return guard;
           }
