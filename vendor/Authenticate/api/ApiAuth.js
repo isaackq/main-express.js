@@ -51,7 +51,8 @@ class ApiAuth {
       const client = await AuthClient.findOne({
         where: { provider: provider, revoked: false },
       });
-      if (client) { // the secret is the key  of the encrypiton
+      if (client) {
+        // the secret is the key  of the encrypiton
         const token = jwt.sign({ id: this.id }, client.secret); //payload is a data that put into the generated token to garntee that there is a pointer to the user who generated the token
         // console.log(token /*.split('.')[2]*/); //عشان نجيب السيقناتشر بكون الي في الاخر وكلهم مفصولين بالدوت
         const signature = token.split(".")[2];
@@ -66,7 +67,7 @@ class ApiAuth {
             }
           );
         }
-         AccessToken.create({
+        await AccessToken.create({
           name: name,
           expires_at: expiredAfter,
           user_id: this.id,

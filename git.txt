@@ -1,0 +1,14 @@
+git rm -r --cached .
+git commit -m "Removed all files from Git tracking"
+
+delete files from local git 
+
+
+git add. 
+
+add the all filles to git repository 
+
+git commit -m ""   : commint what the changes 
+
+git push : push the changes to githup 
+
