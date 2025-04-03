@@ -15,6 +15,10 @@ let Task = connection.define(
       type: DataTypes.STRING(100),
       allowNull: false, //constrain on the database level
     },
+    image: {
+      type: DataTypes.STRING("100"),
+      allowNull: false,
+    },
   },
   {
     timestamps: true,

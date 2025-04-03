@@ -18,7 +18,7 @@ const {
 const AppProvider = require("./services/AppProvider");
 const Route = require("./services/Route");
 // const nodemailer = require("nodemailer");
-
+const multer = require("multer");
 // const Role = require("./models/authorize/Role");
 // const Premission = require("./models/authorize/Permission");
 // const RolePermission = require("./models/authorize/RolePermission");
@@ -53,11 +53,63 @@ app.use(
     // cookie: { secure: true }
   })
 );
+const crypto = require("crypto");
 
 //Mildewares
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(express.static("public"));
+app.use(express.static("public")); //عشان المتصفح يقرا مسارارت الملفات الموجودة داخل صفحة ال اتش تي ام ال
+app.use("/storage", express.static("storage")); //to reade from the file  //"أي ملف داخل مجلد storage، خليه متاح للتحميل من المتصفح على الرابط /storage/filename"
+// http://localhost:5000/storage/myfile.zip
+//يعني ملهاش فائدة في التخزين فقط في العرض
+
+const diskStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "storage"); //wiht out slash
+  },
+  filename: (req, file, cb) => {
+    // console.log(file);
+    // const crypto = require("crypto");
+    // const random = crypto.randomBytes(10).toString("utf-8");
+    // const random = crypto.randomBytes(10).toString("hex");
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9); //faster in excution
+    // const fileName = Date.now() + "_" + random + "_" + file.originalname; //file.originalname for the extention name // امتداد الملف
+    // cb(null, fileName);
+    cb(null, file.fieldname + "-" + uniqueSuffix + file.originalname);
+  },
+});
+// const diskStorage = multer.diskStorage({
+//   destination: "storage", //wiht out slash
+//   filename: (req, file, cb) => {
+//     cb(null, "file" + file.originalname);
+//   },
+// });
+
+const fileFilter = (req, file, cb) => {
+  if (
+    file.mimetype === "image/jpeg" || //jpeg and jpg is the same thing but diff pronusiation
+    file.mimetype === "image/jpg" ||
+    file.mimetype === "image/png"
+  ) {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
+app.use(
+  //if i want to uplode a zip file just remove the filter
+  multer({ storage: diskStorage, fileFilter: fileFilter }).single("image") //image //اسم الحقل الي رح تيجي فيه الصورة
+); //يعني يستقبل حقل واحد
+
+// let a = 5;     // 0101 in binary
+// let b = 1;     // 0001 in binary
+//Bitwise
+// console.log(a & b);  // Output: 1 (AND)
+// console.log(a | b);  // Output: 5 (OR)
+// console.log(a ^ b);  // Output: 4 (XOR)
+// console.log(~a);     // Output: -6 (NOT)
+// console.log(a << 1); // Output: 10 (Left shift)
+// console.log(a >> 1); // Output: 2 (Right shift)
 
 //EJS - Template Engine
 app.set("view engine", "ejs");
@@ -252,7 +304,7 @@ app.use((error, req, res, next) => {
 
 Student.findByPk(1)
   .then((result) => {
-    // result.createToken(`user-${result.id}`, true );//ازا بدنا يلغي التوكنز الي قبل بنحطها ترو اما ازا يضلو شغالات بنحطها فولس 
+    // result.createToken(`user-${result.id}`, true );//ازا بدنا يلغي التوكنز الي قبل بنحطها ترو اما ازا يضلو شغالات بنحطها فولس
   })
   .catch(function (error) {});
 

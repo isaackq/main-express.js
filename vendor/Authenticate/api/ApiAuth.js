@@ -88,6 +88,13 @@ class ApiAuth {
        * - Return Token
        */
     }; //function has a referance to the model , the arrow function has referance to the class
+
+    model.prototype.logout = async function () {
+      // console.log(this.getDataValue('token'));//لانها اضيفت افتراضيا
+      // console.log(this.token);
+      const accessToken = await this.token.update({ revoked: true }); //return acess token
+      return accessToken != null || undefined;//the access token does not equal null or undifined 
+    };
   }
 
   async createClient(name, provider) {
