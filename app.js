@@ -101,6 +101,8 @@ app.use(
   multer({ storage: diskStorage, fileFilter: fileFilter }).single("image") //image //اسم الحقل الي رح تيجي فيه الصورة
 ); //يعني يستقبل حقل واحد
 
+
+//isaac 
 // let a = 5;     // 0101 in binary
 // let b = 1;     // 0001 in binary
 //Bitwise
