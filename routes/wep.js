@@ -1,6 +1,7 @@
 const express = require("express");
 const TaskController = require("../controllers/TaskController ");
 const StudentController = require("../controllers/StudentController");
+const AdminController = require("../controllers/AdminController");
 const DashboardController = require("../controllers/DashboardController");
 const AuthController = require("../controllers/Auth/AuthController");
 const { check, body, param } = require("express-validator");
@@ -15,6 +16,7 @@ const PasswordReset = require("../vendor/Authenticate/PasswordReset");
 const {
   signedResetToken,
 } = require("../vendor/Authenticate/middlewares/signedResetToken");
+const Admin = require("../models/admin");
 // const { authorize } = require("../middlewares/authorize/authorize");//تنقل مكانها على ملف الفيندور
 // const { Json } = require("sequelize/types/utils");//ايررور لما افعلها
 
@@ -92,7 +94,7 @@ router.get(
         // } else {
         //   return true;
         // }
-        return value === "student" || value === "user";
+        return value === "student" || value === "admin";
         // return value in auth.guards[0];
         // return !(value  in ["admin", "student"])
       }),
@@ -106,10 +108,16 @@ router.post(
   [
     body("email")
       .isEmail()
-      .custom((value) => {
-        return Student.count({ where: { email: value } }).then((count) => {
-          if (count == 0) return Promise.reject("Email is not registerd");
-        });
+      .custom((value, { req }) => {
+        if (req.session.guard === "student") {
+          return Student.count({ where: { email: value } }).then((count) => {
+            if (count == 0) return Promise.reject("Email is not registerd");
+          });
+        } else if (req.session.guard === "admin") {
+          return Admin.count({ where: { email: value } }).then((count) => {
+            if (count == 0) return Promise.reject("Email is not registerd");
+          });
+        }
       }),
     body("password").trim().notEmpty(),
   ],
@@ -166,5 +174,33 @@ router.get("/tasks/:id/edit", authenticate, TaskController.edit);
 router.post("/tasks", authenticate, TaskController.store);
 router.put("/tasks/:id", authenticate, TaskController.update);
 router.delete("/tasks/:id", authenticate, TaskController.destroy);
+
+router.get("/admins", authenticate, AdminController.index);
+router.get("/admins/create", authenticate, AdminController.create); //عرض واجهة الانشاء
+router.post(
+  "/admins",
+  [
+    body("firstName")
+      .trim()
+      .isString()
+      .isLength({ min: 3, max: 20 })
+      .withMessage("Cheak first name"),
+    body("email")
+      .trim()
+      .isEmail()
+      .custom(async (value) => {
+        let count = await Admin.count({ where: { email: value } });
+        if (count > 0) {
+          return Promise.reject("E_mail is aldeady used , use another one ");
+        }
+      }),
+  ],
+  authenticate,
+  AdminController.store
+);
+router.get("/admins/:id", authenticate, AdminController.show);
+router.get("/admins/:id/edit", authenticate, AdminController.edit);
+router.put("/admins/:id", authenticate, AdminController.update);
+router.delete("/admins/:id", authenticate, AdminController.destroy);
 
 module.exports = router;

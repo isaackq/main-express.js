@@ -13,6 +13,7 @@
 //   ],
 // };
 
+const Admin = require("../models/admin");
 const Student = require("../models/students");
 const PasswordRestToke = require("../vendor/Authenticate/models/PasswodeResetToken");
 // const PasswordReset = require("../vendor/Authenticate/PasswordReset");//(node:1600) Warning: Accessing non-existent property 'auth' of module exports inside circular dependency
@@ -34,13 +35,13 @@ exports.auth = {
       provider: "students", //لازم نعرفو تحت
     },
     student_api: {
-      driver: "token", //sessions or token , token for api , session for wep and spa  //للكوكيز في الاس يس اي
+      driver: "token", //sessions or token , token for api , session for wep(server side rendering ) and spa(token is  used propply)  //للكوكيز في الاس يس اي
       provider: "students", //the same provider
     },
-    // admin :{
-    //     driver:"session" ,
-    //     provide :"admins"
-    // }
+    admin :{
+        driver:"session" ,
+        provider :"admins"
+    }
   },
   providers: {
     //provider is the name of the table wiht s
@@ -50,10 +51,12 @@ exports.auth = {
       model: Student,
       driver: "Sequelize",
     },
-    // admin:{//لو  كنا بنشتغل داتا بيز
-    //     table : "admins",
-    //     driver: "database"
-    // }
+    admins:{//لو  كنا بنشتغل داتا بيز
+        modelname : "Admin",
+        model: Admin, 
+        driver: "Sequelize"
+        // driver: "database"
+    }
   },
   password_reset: {
     student: {

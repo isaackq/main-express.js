@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<!--
+This is a starter template page. Use this page to start your new project from
+scratch. This page gets rid of all links and provides the needed markup only.
+-->
+<html lang="en">
+<head>
+  <%- include('../../components/head')  %>  
+</head>
+<body class="hold-transition sidebar-mini">
+<div class="wrapper">
+
+  <!-- Navbar -->
+  <%- include('../../components/navbar')  %>  
+  <!-- /.navbar -->
+  <!-- Main Sidebar Container -->
+  <%- include('../../components/main-side-bar')  %>
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <%- include('../../components/Content-header')  %>
+
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+<!-- هادي هيا المساحة المتغيرة اما باقي الثوابت عملنا الها انكلود  -->
+
+<% if(locals.message) { %> 
+  <div class="alert alert-success alert-dismissible">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+    <h5><i class="icon fas fa-check"></i> Alert!</h5>
+    <%=locals.message %>
+  </div>
+  <% }%> 
+
+<section class="content">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Bordered Table</h3>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+              <table class="table table-bordered table-hover table-striped">
+                <thead>
+                  <tr>
+                    <th style="width: 10px">#</th>
+                    <th>Fullname</th>
+                    <th>Email</th>
+                    <th>Gender</th>
+                    <th style="width: 40px">Settings</th>
+                  </tr>
+                </thead>
+                <tbody>
+             <% for(admin of data) { %>
+                  <tr>
+                    <td><%=admin.id%></td>
+                    <td><%=admin.fullName%></td>
+                    <td><%=admin.email%></td>
+                    <td><%=admin.gender%></td>
+                    <td>
+                        <div class="btn-group">
+                        <button type="button" class="btn btn-warning">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                      <form method="post" action="/cms/admin/students/<%= admin.id %>">
+                        <input type="hidden" name="_method" value="DELETE" >
+                        <button type="submit" class="btn btn-danger">
+                          <i class="fas fa-trash-alt"></i>
+                        </button>
+                      </form>
+                       </td>  
+                      </div>             
+                  </tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+            <!-- /.card-body -->
+            <div class="card-footer clearfix">
+              <ul class="pagination pagination-sm m-0 float-right">
+                <li class="page-item"><a class="page-link" href="#">«</a></li>
+                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item"><a class="page-link" href="#">»</a></li>
+              </ul>
+            </div>
+          </div>
+          <!-- /.card -->
+
+        
+        </div>
+        <!-- /.col -->
+      
+      </div>
+    
+    </div><!-- /.container-fluid -->
+  </section>
+
+    <!-- blade yields and sections in laravel زي الوراثة في الاي جي اس يعني تعويض -->
+    
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  <!-- Control Sidebar -->
+<!-- السايد بار مش لازمة  -->
+
+  <!-- <aside class="control-sidebar control-sidebar-dark">
+    <!-- Control sidebar content goes here  //تعليق من اول 
+    <div class="p-3">
+      <h5>Title</h5>
+      <p>Sidebar content</p>
+    </div>
+  </aside> -->
+  <!-- /.control-sidebar -->
+
+  <!-- Main Footer -->
+   
+  <%- include('../../components/footer')  %>
+  
+</div>
+<!-- ./wrapper -->
+
+<!-- REQUIRED SCRIPTS -->
+
+<!-- Scripts -->
+
+<%- include('../../components/Scripts')  %>
+
+</body>
+</html>

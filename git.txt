@@ -12,3 +12,33 @@ git commit -m ""   : commint what the changes
 
 git push : push the changes to githup 
 
+
+
+if we want to clone a repository from githup using the ssh protocol we first need to create a key on our coputer and add it to the githup ssh keys in the  settings 
+
+this command generates a new ssh key to the computer :ssh-keygen -t rsa -b 4096 -C "your-email@example.com"
+
+this command show the ssh public key that we need to copy it to the ssh key on githup :type $env:USERPROFILE\.ssh\id_rsa.pub
+
+ this tests the connection after we add the key :ssh -T git@github.com
+
+ and then we can clone from the Laptop
+
+
+this command that show this the private and the public key for the ssh :dir C:\Users\isaac\.ssh
+
+ Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----          4/3/2025   3:46 PM           3389 id_rsa
+-a----          4/3/2025   3:46 PM            749 id_rsa.pub
+-a----          4/3/2025   3:49 PM            831 known_hosts
+-a----          4/3/2025   3:42 PM             92 known_hosts.old 
+
+id_rsa is the private key that is stored in the computer 
+id_rsa.pub is the public key that we put on githup
+
+
+
+
+
+ 
