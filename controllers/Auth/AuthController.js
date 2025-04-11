@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const Student = require("../../models/students");
 const { validationResult } = require("express-validator");
 const Auth = require("../../services/Authenticate");
+const { saveLog } = require("../../utils/logger");
 
 exports.showlogin = (req, res, next) => {
   // console.log(req.query.e); //http://localhost:5000/cms/student/login?e=isaac
@@ -28,9 +29,11 @@ exports.login = async (req, res, next) => {
     let result = await Auth.guard(req.session.guard).attempt(req); //بنعمل ريستارت عشان نفرغ السيشن تاني
     // let result = Auth.attempt(req);//هيك بنكون مفعلين الديفولت
     if (result) {
+      saveLog(`🗑️ ${req.session.guard}  ${req.session.user.email} loged in`);
       res.redirect("/cms");
       // res.send({ status: "shut the fuck up  " });
     } else {
+      saveLog(`🗑️ ${req.session.guard}  loged in`);
       return res
         .with("errors", [{ msg: "Wrong credentials" }])
         .with("old", req.body)
@@ -63,6 +66,7 @@ exports.login = async (req, res, next) => {
 };
 exports.logout = (req, res, next) => {
   //Auth.guard('Student').logout();
+  saveLog(`🚪${req.session.guard} ${req.session.user.email} logged out`);
   req.session.user = undefined;
   req.session.isAuthenticated = undefined;
   res.redirect(`/cms/${req.session.guard}/login`);

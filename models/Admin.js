@@ -69,6 +69,10 @@ const Admin = sequalize.define(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+    image: {
+      type: DataTypes.STRING(100),
+      allowNull: false,
+    },
   },
   {
     timestamps: true, //keep created at , updated at

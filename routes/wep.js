@@ -16,9 +16,128 @@ const PasswordReset = require("../vendor/Authenticate/PasswordReset");
 const {
   signedResetToken,
 } = require("../vendor/Authenticate/middlewares/signedResetToken");
-const Admin = require("../models/admin");
+const Admin = require("../models/Admin");
+const ActivityLog = require("../vendor/logSystem/models/ActivityLog ");
 // const { authorize } = require("../middlewares/authorize/authorize");//تنقل مكانها على ملف الفيندور
 // const { Json } = require("sequelize/types/utils");//ايررور لما افعلها
+const PDFDocument = require("pdfkit");
+const fs = require("fs");
+router.get("/log", async (req, res, next) => {
+  const logs = await ActivityLog.findAll();
+  if (logs) {
+    return res.render("layouts/admins/ActivtyLog", { logs: logs });
+  }
+});
+
+router.get("/logs/download/cvs", async (req, res, next) => {
+  try {
+    const logs = await ActivityLog.findAll();
+    let csv = "User,Role,Action,Route,Method,IP,User-Agent,Time\n";
+    logs.forEach((log) => {
+      csv += `"${log.email}","${log.role}","${log.action.replace(
+        /"/g,
+        "'"
+      )}","${log.route}","${log.method}","${log.ip_address}","${
+        log.user_agent
+      }","${log.timestamp.toLocaleString()}"\n`;
+    });
+
+    res.setHeader(
+      "Content-disposition",
+      "attachment; filename=activity_logs.csv"
+    );
+    res.set("Content-Type", "text/csv");
+    res.status(200).send(csv);
+  } catch (err) {
+    console.error("❌ CSV Download Error:", err.message);
+    res.status(500).send("Error generating CSV file");
+  }
+});
+
+router.get("/logs/download/pdf", async (req, res, next) => {
+  // try {
+  //   const logs = await ActivityLog.findAll();
+  //   const doc = new PDFDocument({ margin: 30, size: "A4" });
+  //   // الهيدرز - بنقول للمتصفح نزّل الملف
+  //   res.setHeader(
+  //     "Content-Disposition",
+  //     "attachment; filename=activity_logs.pdf"
+  //   );
+  //   res.setHeader("Content-Type", "application/pdf");
+  //   // نربط الـ PDF مباشرة مع الـ response
+  //   doc.pipe(res);
+  //   // عنوان
+  //   doc.fontSize(20).text("Activity Logs Report", { align: "center" });
+  //   doc.moveDown();
+  //   // رؤوس الجدول
+  //   doc
+  //     .fontSize(12)
+  //     .text("User      | Role     | Action                         | Time");
+  //   doc.text("--------------------------------------------------------------");
+  //   // البيانات
+  //   logs.forEach((log) => {
+  //     doc.text(
+  //       `${log.email.padEnd(10)} | ${log.role.padEnd(8)} | ${log.action
+  //         .slice(0, 30)
+  //         .padEnd(30)} | ${new Date(log.timestamp).toLocaleString()}`
+  //     );
+  //   });
+  //   doc.end(); // نهاية الملف
+  // } catch (err) {
+  //   console.error("PDF Error:", err.message);
+  //   res.status(500).send("Error generating PDF");
+  // }
+  try {
+    const logs = await ActivityLog.findAll();
+
+    const doc = new PDFDocument({
+      margin: 40,
+      size: "A4",
+      layout: "landscape",
+    }); // landscape يعطيك عرض أكتر
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=activity_logs.pdf"
+    );
+    res.setHeader("Content-Type", "application/pdf");
+    doc.pipe(res);
+
+    // العنوان
+    doc
+      .fontSize(18)
+      .font("Helvetica-Bold")
+      .text("Activity Logs Report", { align: "center" });
+    doc.moveDown();
+
+    // الرؤوس
+    doc.fontSize(12).font("Helvetica-Bold");
+    doc.text("User Email", 40, doc.y, { continued: true });
+    doc.text("| Role", 200, doc.y, { continued: true });
+    doc.text("| Action", 270, doc.y, { continued: true });
+    doc.text("| Time", 550);
+    doc.moveDown(0.3);
+    doc.font("Helvetica").fillColor("#555");
+    doc.text("-".repeat(100));
+    doc.moveDown(0.5);
+
+    // عرض البيانات كسطر واحد لكل سجل
+    logs.forEach((log) => {
+      const email = (log.user_email || "unknown").toString().padEnd(25, " ");
+      const role = (log.role || "guest").toString().padEnd(10, " ");
+      const action = (log.action || "no action").toString();
+      const time = log.timestamp
+        ? new Date(log.timestamp).toLocaleString()
+        : "N/A";
+
+      doc.fontSize(10).fillColor("black");
+      doc.text(`${email} | ${role} | ${action} | ${time}`);
+    });
+    doc.end();
+  } catch (err) {
+    console.error("❌ PDF Error:", err.message);
+    res.status(500).send("Error generating PDF");
+  }
+});
 
 router.get("password/reset", (req, res) => {
   //1
@@ -179,6 +298,7 @@ router.get("/admins", authenticate, AdminController.index);
 router.get("/admins/create", authenticate, AdminController.create); //عرض واجهة الانشاء
 router.post(
   "/admins",
+  authenticate,
   [
     body("firstName")
       .trim()
@@ -194,8 +314,21 @@ router.post(
           return Promise.reject("E_mail is aldeady used , use another one ");
         }
       }),
+    body("password")
+      .trim()
+      .isString()
+      .isStrongPassword({
+        minLength: 8,
+        minLowercase: 1,
+        minNumbers: 1,
+        minUppercase: 1,
+        minSymbols: 1,
+      })
+      .notEmpty()
+      .withMessage("Enter Strong Password"),
+    body("gender").trim().isIn(["M", "F"]),
   ],
-  authenticate,
+
   AdminController.store
 );
 router.get("/admins/:id", authenticate, AdminController.show);

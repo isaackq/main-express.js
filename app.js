@@ -19,6 +19,7 @@ const AppProvider = require("./services/AppProvider");
 const Route = require("./services/Route");
 // const nodemailer = require("nodemailer");
 const multer = require("multer");
+const morgan = require("morgan");
 // const Role = require("./models/authorize/Role");
 // const Premission = require("./models/authorize/Permission");
 // const RolePermission = require("./models/authorize/RolePermission");
@@ -102,8 +103,7 @@ app.use(
   multer({ storage: diskStorage, fileFilter: fileFilter }).single("image") //image //اسم الحقل الي رح تيجي فيه الصورة
 ); //يعني يستقبل حقل واحد
 
-
-//isaac 
+//isaac
 // let a = 5;     // 0101 in binary
 // let b = 1;     // 0001 in binary
 //Bitwise
@@ -123,6 +123,33 @@ app.use(methodOverride);
 app.use(withSessionHandler);
 app.use(sessionErorrs); //قبل الراوتس
 // app.use(sessionStorage);
+
+
+
+const fs = require('fs');
+const path = require('path');
+
+const accessLogStream = fs.createWriteStream(
+  path.join(__dirname, 'access.log'),
+  { flags: 'a' } // 'a' means "append", don't overwrite
+);
+
+
+
+
+
+
+
+app.use(morgan("combined", { stream: accessLogStream })); // لتسجيل عمليات اللوق
+
+
+
+
+
+
+
+
+
 
 //SEND EMAIL TEST FROM CHATGPT
 // app.post('/send-email', async (req, res) => {

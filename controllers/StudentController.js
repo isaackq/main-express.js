@@ -3,6 +3,8 @@ const bcrypt = require("bcrypt");
 const { Op } = require("sequelize");
 const Task = require("../models/Tasks");
 const { validationResult } = require("express-validator");
+const { saveLog } = require("../utils/logger");
+const CreateLog = require("../vendor/logSystem/logger");
 
 /**
  * Has many
@@ -54,13 +56,13 @@ exports.show = async (req, res, next) => {
 };
 exports.create = (req, res, next) => {
   // const errors = req.session.errors;
-  // const old = req.session.old;//بدنا ننقلو على الميدل وير 
+  // const old = req.session.old;//بدنا ننقلو على الميدل وير
   // req.session.errors= null ;
   // req.session.old= null ;//تفريغ للسيشنز
 
   res.render("layouts/students/create", {
     title: "Create Studenet",
-    // errors: errors,//  من بعد الميدل وير 
+    // errors: errors,//  من بعد الميدل وير
     // old: old,
   });
 
@@ -93,14 +95,25 @@ exports.store = async (req, res, next) => {
       }); //صح بس  الباسورد لازمها تشفير
       // res.status(201).send({ status: true, data: result });
 
+      //Level 2
+      //  if ( req.headers.accept != "application/json") //بدنا ننتقل عى لفل 3 باستخدام ويذ
+      //  req.session.flashed = {message : "Created Successfully"}//ضفنا على  السيشن الفلاش
 
-      //Level 2 
-  //  if ( req.headers.accept != "application/json") //بدنا ننتقل عى لفل 3 باستخدام ويذ
-  //  req.session.flashed = {message : "Created Successfully"}//ضفنا على  السيشن الفلاش 
-    
+      if (req.session.guard === "admin") {
+        CreateLog(
+          req,
+          `admin ${req.session.user.email} Created user ${req.body.email}`
+        );
+      } else {
+        CreateLog(
+          req,
+          `New User Regestrated ${req.body.email}`,
+          req.body.email
+        );
+      }
       req.headers.accept === "application/json"
         ? res.status(201).send({ status: true, data: result })
-        : res.with("message","Created Successfully").redirect("/cms/students");
+        : res.with("message", "Created Successfully").redirect("/cms/students");
     } catch (error) {
       // console.log(error);
       res.status(400).send({
@@ -119,14 +132,16 @@ exports.store = async (req, res, next) => {
     //   status: false,
     //   messagee: error.array({ onlyFirstError: true })[0].msg, //يعني لو 3 اخطاء حصلت على مستوى الايميل بجيب خطا واحد بس
     // });
- 
 
-    //هيك الفلاشد في  حالة غير الستور رح تكون ان ديفايند 
-    //Level 2 
+    //هيك الفلاشد في  حالة غير الستور رح تكون ان ديفايند
+    //Level 2
     // req.session.flashed = {old:req.body , errors:error.array() };//عرفناه قبل عشان لو ضفنا عليه وهوا مش موجود رح يعمل ان ديفايند
-    // req.session.old = req.body;//عشان بدنا نرجع على الكرييت لازم نكون محملين هادي البيانات 
+    // req.session.old = req.body;//عشان بدنا نرجع على الكرييت لازم نكون محملين هادي البيانات
     // req.session.errors = error.array();//Level 1
-    res.with("old",req.body).with("errors",error.array()).redirect("/cms/admin/students/create"); //لما نعمل ريداركت بنكون مسحنا كل اشي من الريسبونس
+    res
+      .with("old", req.body)
+      .with("errors", error.array())
+      .redirect("/cms/students/create"); //لما نعمل ريداركت بنكون مسحنا كل اشي من الريسبونس
   }
 
   //
@@ -180,25 +195,30 @@ exports.update = async (req, res, next) => {
 
 exports.destroy = async (req, res) => {
   //طريقة 1
-  let result = await Student.destroy({
-    where: { id: req.params.id },
-    force: true,
-  });
+  // let result = await Student.destroy({
+  //   where: { id: req.params.id },
+  //   force: true,
+  // });
   // res.send({result : result});
-
-  //طريقة 2
-  // let student = await Student.findOne({ where: { id: req.params.id } });
-  // // let student = await Student.findByPk(req.params.id);
-  // if (student != null) {
-  //   let result = await student.destroy({
-  //     force: true /*لما يمحي بمحي بالكامل*/,
-  //   });
-  //   return res.send({ status: result });
-  // }
+  // طريقة 2
+  let student = await Student.findOne({ where: { id: req.params.id } });
+  saveLog(
+    `🗑️ ${req.session.guard} ${req.session.user.email} deleted user: ${student.email}`
+  );
+  CreateLog(
+    req,
+    `admin ${req.session.user.email} Deleted user ${student.email}`
+  );
+  if (student != null) {
+    let result = await student.destroy({
+      force: true /*لما يمحي بمحي بالكامل*/,
+    });
+    return res.send({ status: result });
+  }
   // return res.status(404).send({ status: false, message: "NOT FOUND" });
   req.headers.accept === "application/json"
     ? res.send({ result: result })
-    : res.redirect("/cms/admin/students");
+    : res.redirect("/cms/students");
 
   //
 };

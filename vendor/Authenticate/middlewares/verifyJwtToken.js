@@ -50,6 +50,6 @@ exports.verifyToken = async (req, res, next) => {
         } catch (error) {}
       }
     }
-    res.status(401).send({ status: false, message: "Unauthenticated" });
   }
+  res.status(401).send({ status: false, message: "Unauthenticated" });
 };
