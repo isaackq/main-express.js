@@ -13,7 +13,7 @@
 //   ],
 // };
 
-const Admin = require("../models/admin");
+const Admin = require("../models/Admin");
 const Student = require("../models/students");
 const PasswordRestToke = require("../vendor/Authenticate/models/PasswodeResetToken");
 // const PasswordReset = require("../vendor/Authenticate/PasswordReset");//(node:1600) Warning: Accessing non-existent property 'auth' of module exports inside circular dependency

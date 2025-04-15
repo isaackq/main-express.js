@@ -1,5 +1,5 @@
 require("dotenv").config(); //لازم تتعرف //because the .env is not loaded and we did not run the app.js to load the enviroment variables//لازم ملف البروسيس يشتغل لما نعمل رن للسيرفر
-const Admin = require("../../models/admin");
+const Admin = require("../../models/Admin");
 console.log("Admin Seeder");
 module.exports = class AdminSeeder {
   //لما نعمل زي هيك بنكون صدرنا الكلاس للخارج من دون ميكون جوا الملف لانو تصدر مباشرة ازا بدنا نستدعي الكلاس من اسمو جوا الملف بنخلي الموديول اكسبورت تحت

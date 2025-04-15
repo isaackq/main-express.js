@@ -55,7 +55,7 @@ app.use(
   })
 );
 const crypto = require("crypto");
-const Admin = require("./models/admin");
+const Admin = require("./models/Admin");
 
 //Mildewares
 app.use(express.urlencoded({ extended: true }));

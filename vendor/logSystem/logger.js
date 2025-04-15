@@ -1,4 +1,4 @@
-const ActivityLog = require("./models/ActivityLog ");
+const ActivityLog = require("./models/ActivityLog");
 
 async function CreateLog(req, action, newEmail) {
   const user = req.session?.user || { id: null, email: "Guest", role: "guest" };//القيست بتشتغل لما ما  يكون في سيشين وما نرسل ايميل بديل 
